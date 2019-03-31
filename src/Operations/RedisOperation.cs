@@ -1,25 +1,33 @@
 ﻿using ClientRedis.Conect;
 using Newtonsoft.Json;
 using StackExchange.Redis;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ClientRedis.Operations
 {
     public class RedisOperation<T> 
         where T : class
     {
-        protected static IDatabase _database;
+        private static IDatabase _database;
 
         /// <summary>
         /// Adiciona um dado no redis
         /// </summary>
         /// <param name="obj">objeto que será armazendo</param>
         /// <param name="key"></param>
-        public static void Add(T obj, string key)
+        public static void Add(T obj, string key, TimeSpan? expiry = null)
         {
             var cache = ConectRedis.Connection.GetDatabase();
-            GetDatabase().StringSet(key, JsonConvert.SerializeObject(obj));
+
+            if(expiry == null)
+            {
+                GetDatabase().StringSet(key, JsonConvert.SerializeObject(obj));
+
+                return;
+            }
+
+            GetDatabase().StringSet(key, JsonConvert.SerializeObject(obj), expiry);
         }
 
         /// <summary>
@@ -27,13 +35,11 @@ namespace ClientRedis.Operations
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="keys"></param>
-        public static void Add(T obj, IList<string> keys)
+        public static void Add(T obj, IList<string> keys, TimeSpan? expiry = null)
         {
-            var cache = ConectRedis.Connection.GetDatabase();
-
             foreach(var key in keys)
             {
-                GetDatabase().StringSet(key, JsonConvert.SerializeObject(obj));
+                Add(obj, key, expiry);
             }
         }
 
