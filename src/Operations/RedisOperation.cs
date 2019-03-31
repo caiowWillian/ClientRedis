@@ -18,8 +18,6 @@ namespace ClientRedis.Operations
         /// <param name="key"></param>
         public static void Add(T obj, string key, TimeSpan? expiry = null)
         {
-            var cache = ConectRedis.Connection.GetDatabase();
-
             if(expiry == null)
             {
                 GetDatabase().StringSet(key, JsonConvert.SerializeObject(obj));
